@@ -1,5 +1,5 @@
 import { isAny } from "./any.ts";
-import { type CodeStyle, Type } from "./base.ts";
+import { type CodeStyle, Type, setOptionalFactories } from "./base.ts";
 
 function bindgenOptional(payload: Type): string {
   return `bindgen.BindgenOptional(${payload.bindgenType})`;
@@ -117,3 +117,7 @@ const Null = new (class extends Type {
 })();
 
 export { Null as null, Undefined as undefined };
+
+// Provide Type.prototype's `.optional`/`.nullable` getters with their factories,
+// without base.ts having to statically import this module (see base.ts).
+setOptionalFactories({ optional, nullable });

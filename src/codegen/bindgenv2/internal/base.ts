@@ -1,8 +1,21 @@
 import util from "node:util";
-import { createRequire } from "node:module";
-import type { NullableType, OptionalType } from "./optional.ts";
+import type { NullableType, OptionalType, optional, nullable } from "./optional.ts";
 
-const require = createRequire(import.meta.url);
+// `base.ts` and `optional.ts` form a circular dependency: optional.ts needs
+// `Type` at module-evaluation time (`class OptionalType extends Type`), so
+// base.ts cannot statically import it. Under bun this was handled with a lazy
+// `require("./optional.ts")`, but mixing `require` and `import` of the same .ts
+// under node + tsx yields two distinct module instances, so objects built here
+// would have a prototype chain disconnected from the ESM `Type` (breaking
+// `instanceof` and inherited getters like `dependencies`). Instead optional.ts
+// registers its factories here (via setOptionalFactories) when it loads, so
+// there is exactly one ESM instance and no static base -> optional import.
+let optionalFactories: { optional: typeof optional; nullable: typeof nullable };
+
+/** Called by optional.ts at module load to break the base <-> optional cycle. */
+export function setOptionalFactories(factories: typeof optionalFactories): void {
+  optionalFactories = factories;
+}
 
 /** Default is "compact". */
 export type CodeStyle = "compact" | "pretty";
@@ -10,12 +23,12 @@ export type CodeStyle = "compact" | "pretty";
 export abstract class Type {
   /** Treats `undefined` as a not-provided value. */
   get optional(): OptionalType {
-    return require("./optional.ts").optional(this);
+    return optionalFactories.optional(this);
   }
 
   /** Treats `null` or `undefined` as a not-provided value. */
   get nullable(): NullableType {
-    return require("./optional.ts").nullable(this);
+    return optionalFactories.nullable(this);
   }
 
   abstract readonly idlType: string;

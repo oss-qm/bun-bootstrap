@@ -181,11 +181,12 @@ register_command(
   TARGET
     bun-node-fallbacks
   COMMENT
+  ALWAYS_RUN
     "Building node-fallbacks/*.js"
   CWD
     ${BUN_NODE_FALLBACKS_SOURCE}
   COMMAND
-    ${BUN_EXECUTABLE} build-fallbacks.ts
+    ${BUN_EXECUTABLE} build-fallbacks.mts
       ${BUN_NODE_FALLBACKS_OUTPUT}
       ${BUN_NODE_FALLBACKS_SOURCES}
   SOURCES
@@ -202,6 +203,7 @@ register_command(
   TARGET
     bun-node-fallbacks-react-refresh
   COMMENT
+  ALWAYS_RUN
     "Building node-fallbacks/react-refresh.js"
   CWD
     ${BUN_NODE_FALLBACKS_SOURCE}
@@ -323,6 +325,7 @@ register_command(
   TARGET
     bun-cppbind
   COMMENT
+  ALWAYS_RUN
     "Generating C++ --> Zig bindings"
   COMMAND
     ${BUN_EXECUTABLE}
@@ -415,13 +418,14 @@ string(REPLACE ";" "," BUN_BINDGENV2_SOURCES_COMMA_SEPARATED
   "${BUN_BINDGENV2_SOURCES}")
 
 execute_process(
-  COMMAND ${BUN_EXECUTABLE} ${BUN_BINDGENV2_SCRIPT}
+  COMMAND ${NODE_EXECUTABLE} --import ${CWD}/node_modules/tsx/dist/loader.mjs ${BUN_BINDGENV2_SCRIPT}
     --command=list-outputs
     --sources=${BUN_BINDGENV2_SOURCES_COMMA_SEPARATED}
     --codegen-path=${CODEGEN_PATH}
   OUTPUT_VARIABLE bindgen_outputs
   COMMAND_ERROR_IS_FATAL ANY
 )
+
 foreach(output IN LISTS bindgen_outputs)
   if(output MATCHES "\.cpp$")
     list(APPEND BUN_BINDGENV2_CPP_OUTPUTS ${output})

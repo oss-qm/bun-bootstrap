@@ -61,6 +61,20 @@ endif()
 # Generate dependency versions header
 include(GenerateDependencyVersions)
 
+# --- Generate source lists ---
+
+# Bun normally runs scripts/glob-sources.mjs (via scripts/build.mjs) to populate
+# cmake/sources/*.txt from cmake/Sources.json. Those files are gitignored and
+# regenerated on every build. This bootstrap drives cmake directly (without
+# build.mjs), so generate them here, before BuildBun reads them via
+# absolute_sources(). Without this the lists are empty and dependency tracking
+# breaks (e.g. node-fallbacks/*.js never gets built before the zig step).
+execute_process(
+  COMMAND ${NODE_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/glob-sources.mjs
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMAND_ERROR_IS_FATAL ANY
+)
+
 # --- Targets ---
 
 include(BuildBun)

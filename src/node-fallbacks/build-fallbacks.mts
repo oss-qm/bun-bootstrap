@@ -1,6 +1,9 @@
-import * as fs from "fs";
-import * as Module from "module";
-import { basename, extname } from "path";
+// Use node: specifiers: this package's node_modules contains browser shims
+// named like builtins (assert, util, buffer, ...), so bare "fs"/"path" would
+// resolve to a CJS shim instead of the real builtin under ESM.
+import * as fs from "node:fs";
+import * as Module from "node:module";
+import { basename, extname } from "node:path";
 import * as esbuild from "esbuild";
 
 const allFiles = fs.readdirSync(".").filter(f => f.endsWith(".js"));
