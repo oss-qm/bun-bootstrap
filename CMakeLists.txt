@@ -61,6 +61,23 @@ endif()
 # Generate dependency versions header
 include(GenerateDependencyVersions)
 
+# --- Install codegen runtime dependencies ---
+
+# BuildBun runs codegen at *configure* time (e.g. the bindgenv2 list-outputs
+# step), which needs node_modules (notably tsx) to already exist. The build-time
+# register_npm_install() edges only run during `cmake --build`, which is too
+# late. Bun normally installs deps via scripts/build.mjs before cmake; this
+# bootstrap drives cmake directly, so install them here. Skipped when tsx is
+# already present, so rebuilds don't pay for a redundant install.
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/node_modules/tsx/dist/loader.mjs)
+  message(STATUS "Installing root npm dependencies (tsx, esbuild, ...)")
+  execute_process(
+    COMMAND ${NPM_EXECUTABLE} install --ignore-scripts
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND_ERROR_IS_FATAL ANY
+  )
+endif()
+
 # --- Generate source lists ---
 
 # Bun normally runs scripts/glob-sources.mjs (via scripts/build.mjs) to populate
