@@ -7,6 +7,9 @@
 # The file is named "npm*" on purpose: register_npm_install() keys off the
 # executable basename matching ^npm to pass `--ignore-scripts` instead of bun's
 # `--frozen-lockfile`.
-NODE=/home/nekrad/src/oc-workspace/_WORK_/opencode/target/bin/node
-NPM_CLI=/home/nekrad/src/oc-workspace/_WORK_/opencode/target/lib/node_modules/npm/bin/npm-cli.js
+# node: prefer $BUN_BOOTSTRAP_NODE (set by the build), else `node` on $PATH.
+# Derive npm-cli.js from node's own location (../lib/node_modules/...) rather
+# than hardcoding it.
+NODE="$(command -v "${BUN_BOOTSTRAP_NODE:-node}")"
+NPM_CLI="$(dirname "$NODE")/../lib/node_modules/npm/bin/npm-cli.js"
 exec "$NODE" "$NPM_CLI" "$@"

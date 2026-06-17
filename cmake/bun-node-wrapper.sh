@@ -6,7 +6,9 @@
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 export NODE_PATH="$HERE/node_modules"
 
-# Start Node 26.3 and register tsx for TypeScript execution. The tsx specifier
-# must be an absolute path: `--import` resolves bare specifiers against the cwd.
-exec /home/nekrad/src/oc-workspace/_WORK_/opencode/target/bin/node \
-    --import "$HERE/node_modules/tsx/dist/loader.mjs" "$@"
+# node: prefer $BUN_BOOTSTRAP_NODE (the build points it at the freshly built
+# node in the install prefix); otherwise fall back to `node` on $PATH. Register
+# tsx for TypeScript execution -- the specifier must be an absolute path, since
+# `--import` resolves bare specifiers against the cwd.
+NODE="${BUN_BOOTSTRAP_NODE:-node}"
+exec "$NODE" --import "$HERE/node_modules/tsx/dist/loader.mjs" "$@"

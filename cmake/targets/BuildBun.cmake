@@ -181,7 +181,6 @@ register_command(
   TARGET
     bun-node-fallbacks
   COMMENT
-  ALWAYS_RUN
     "Building node-fallbacks/*.js"
   CWD
     ${BUN_NODE_FALLBACKS_SOURCE}
@@ -203,7 +202,6 @@ register_command(
   TARGET
     bun-node-fallbacks-react-refresh
   COMMENT
-  ALWAYS_RUN
     "Building node-fallbacks/react-refresh.js"
   CWD
     ${BUN_NODE_FALLBACKS_SOURCE}
@@ -325,7 +323,6 @@ register_command(
   TARGET
     bun-cppbind
   COMMENT
-  ALWAYS_RUN
     "Generating C++ --> Zig bindings"
   COMMAND
     ${BUN_EXECUTABLE}
